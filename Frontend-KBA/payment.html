@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Payment Confirmation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0fdf4;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .confirmation-container {
+      max-width: 600px;
+      margin: 100px auto;
+      background-color: #ffffff;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .confirmation-container h1 {
+      color: #16a34a;
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    .details {
+      text-align: left;
+      font-size: 18px;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    .details p {
+      margin: 8px 0;
+    }
+
+    .thank-you-message {
+      font-size: 20px;
+      font-weight: 500;
+      margin-top: 30px;
+      color: #065f46;
+      line-height: 1.8;
+      padding: 0 10px;
+    }
+
+    .back-button {
+      margin-top: 30px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .back-button:hover {
+      background-color: #15803d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="confirmation-container">
+    <h1>✅ Payment Confirmed</h1>
+
+    <div class="details">
+      <p><strong>Contributor Name:</strong> Rahul Sharma</p>
+      <p><strong>Campaign Name:</strong> Heart Surgery for Neha</p>
+      <p><strong>Amount Paid:</strong> ₹10,000</p>
+    </div>
+
+    <div class="thank-you-message">
+      🌟 Thank you for your incredible generosity! <br />
+      Your support is more than just a donation — it’s a lifeline, a message of hope, 
+      and a reminder that kindness still thrives in this world. <br />
+      On behalf of those you're helping, we are deeply grateful for your compassion. ❤️
+    </div>
+
+    <button class="back-button" onclick="window.location.href='index.html'">Return to Home</button>
+  </div>
+
+</body>
+</html>

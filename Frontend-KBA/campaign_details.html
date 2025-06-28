@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campaign Details – MedChain</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 { color: #28a745; }
+    .progress {
+      background: #e0e0e0;
+      height: 20px;
+      border-radius: 8px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    .progress > div {
+      background: #28a745;
+      height: 100%;
+      transition: width 0.3s;
+    }
+    #withdrawSection {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2 id="campaignTitle">Campaign Title</h2>
+    <p><strong>Medical Condition:</strong> <span id="campaignCondition">-</span></p>
+    <p><strong>Goal:</strong> ₹<span id="campaignGoal">-</span></p>
+    <p><strong>Raised:</strong> ₹<span id="campaignRaised">-</span></p>
+    <div class="progress"><div id="progressBar" style="width: 0%;"></div></div>
+    <p><strong>Deadline:</strong> <span id="campaignDeadline">-</span></p>
+    <p id="campaignDesc">-</p>
+
+    <form id="donationForm">
+      <input type="text" id="donorName" placeholder="Your Name" required>
+      <input type="number" id="donationAmount" placeholder="Amount (₹)" required>
+      <button type="submit">Contribute Now</button>
+    </form>
+
+    <div id="withdrawSection">
+      <h3>🎉 Goal Achieved!</h3>
+      <button onclick="withdrawFunds()">Withdraw Funds</button>
+    </div>
+
+    <iframe src="sample_medical_report.pdf" width="100%" height="400px"></iframe>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const campaignId = "C101"
+    if (!campaignId) {
+      alert("❌ Missing campaign ID in URL");
+      throw new Error("Campaign ID not found in query string.");
+    }
+
+    const API_URL = `http://localhost:5000/${campaignId}`;
+    const withdrawSection = document.getElementById("withdrawSection");
+
+    window.onload = () => {
+      fetch(API_URL)
+        .then(res => {
+          if (!res.ok) throw new Error("Campaign not found");
+          return res.json();
+        })
+        .then(data => {
+          document.getElementById("campaignTitle").textContent = data.title;
+          document.getElementById("campaignCondition").textContent = data.condition;
+          document.getElementById("campaignDesc").textContent = data.description;
+          document.getElementById("campaignGoal").textContent = data.goalAmount.toLocaleString();
+          document.getElementById("campaignRaised").textContent = data.raisedAmount.toLocaleString();
+          document.getElementById("campaignDeadline").textContent = data.deadline;
+
+          const percent = Math.min((data.raisedAmount / data.goalAmount) * 100, 100);
+          document.getElementById("progressBar").style.width = `${percent}%`;
+
+          if (data.raisedAmount >= data.goalAmount && !data.withdrawn) {
+            withdrawSection.style.display = "block";
+          }
+        })
+        .catch(err => {
+          alert("❌ Error loading campaign details.");
+          console.error(err);
+        });
+    };
+
+    document.getElementById("donationForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("donorName").value;
+      const amount = parseInt(document.getElementById("donationAmount").value);
+
+      fetch(`${API_URL}/donate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(`✅ Thank you, ${name}, for your contribution of ₹${amount}!`);
+        location.reload();
+      })
+      .catch(err => {
+        alert("❌ Donation failed.");
+        console.error(err);
+      });
+    });
+
+    function withdrawFunds() {
+      fetch(`${API_URL}/withdraw`, {
+        method: "POST"
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        if (data.message.includes("successful")) {
+          withdrawSection.style.display = "none";
+        }
+      })
+      .catch(err => {
+        alert("❌ Error withdrawing funds.");
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Medical Campaign</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f2f2f2; }
+    form { max-width: 600px; margin: auto; background: white; padding: 24px; border-radius: 10px; }
+    input, textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+    label { font-weight: bold; }
+    .btn { background: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 6px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <form>
+    <h2>Create a New Medical Campaign</h2>
+    <label>Patient Name:</label>
+    <input type="text" required>
+
+    <label>Medical Condition:</label>
+    <textarea rows="3" required></textarea>
+
+    <label>Goal Amount (INR):</label>
+    <input type="number" required>
+
+    <label>End Date:</label>
+    <input type="date" required>
+
+    <label>Upload Medical Documents:</label>
+    <input type="file" accept=".pdf,.jpg,.png" required>
+
+    <button class="btn" type="submit">Submit Campaign</button>
+  </form>
+</body>
+</html>

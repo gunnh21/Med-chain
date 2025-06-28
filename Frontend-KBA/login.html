@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MedChain Crowdfunding</title>
+  <style>
+    /* Global Styles */
+    * { box-sizing: border-box; }
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+      background: #f0f0f0; 
+      padding: 20px;
+    }
+    button { 
+      padding: 10px 16px; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    /* Header & Navigation */
+    header { 
+      background: #28a745; 
+      color: white; 
+      padding: 10px 20px; 
+      border-radius: 10px; 
+      display: flex; 
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .nav-auth { display: flex; gap: 15px; }
+    .nav-auth a { 
+      color: white; 
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+    }
+    .nav-auth a:hover { background: rgba(255,255,255,0.2); }
+    
+    /* Section Management */
+    .section { 
+      display: none; 
+      max-width: 800px; 
+      background: #fff; 
+      margin: 20px auto; 
+      padding: 20px; 
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .active { display: block; }
+    
+    /* Auth Forms */
+    .auth-form { max-width: 500px; }
+    .auth-form input { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 10px 0; 
+      border-radius: 5px; 
+      border: 1px solid #ccc;
+    }
+    .auth-button { 
+      background: #28a745; 
+      color: white; 
+      width: 100%; 
+      padding: 12px;
+    }
+    .form-toggle { 
+      text-align: center; 
+      margin-top: 15px;
+      color: #666;
+    }
+    
+    /* Campaign Grid */
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .card { 
+      padding: 16px; 
+      background: #f8f8f8; 
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .progress { 
+      background: #ddd; 
+      border-radius: 8px; 
+      height: 16px; 
+      margin: 10px 0; 
+      overflow: hidden;
+    }
+    .progress > div { 
+      background: #28a745; 
+      height: 100%; 
+      transition: width 0.3s;
+    }
+    
+    /* Form Elements */
+    input, textarea, select { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 8px 0; 
+      border-radius: 5px; 
+      border: 1px solid #ccc;
+    }
+    textarea { min-height: 100px; }
+    
+    /* Contribution Form */
+    .contribution-form {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .contribution-form input {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>MedChain</h2>
+    <div>
+      <button onclick="showSection('campaigns')">Campaigns</button>
+      <button onclick="showSection('create')" id="createBtn" class="hidden">Create</button>
+      <div class="nav-auth" id="authNav">
+        <a href="#" onclick="showSection('login')">Login</a>
+        <a href="#" onclick="showSection('register')">Register</a>
+      </div>
+      <div id="userNav" class="hidden">
+        <span id="usernameDisplay"></span>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Auth Sections -->
+  <div id="login" class="section auth-form">
+    <h3>Login</h3>
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button class="auth-button" onclick="login()">Login</button>
+    <div class="form-toggle">
+      Don't have an account? <a href="#" onclick="showSection('register')">Register here</a>
+    </div>
+  </div>
+
+  <div id="register" class="section auth-form">
+    <h3>Register</h3>
+    <input type="text" id="regName" placeholder="Full Name" required>
+    <input type="email" id="regEmail" placeholder="Email" required>
+    <input type="password" id="regPassword" placeholder="Password" required>
+    <button class="auth-button" onclick="register()">Register</button>
+    <div class="form-toggle">
+      Already have an account? <a href="#" onclick="showSection('login')">Login here</a>
+    </div>
+  </div>
+
+  <!-- Campaign Sections -->
+  <div id="campaigns" class="section active">
+    <h3>Active Medical Campaigns</h3>
+    <div class="grid" id="campaignList">
+      <!-- Campaigns will be loaded here -->
+    </div>
+  </div>
+
+  <div id="detail" class="section">
+    <h3 id="detailTitle">Campaign Details</h3>
+    <p><strong>Patient:</strong> <span id="detailPatient"></span></p>
+    <p><strong>Condition:</strong> <span id="detailCondition"></span></p>
+    <p><strong>Goal:</strong> ₹<span id="detailGoal">0</span></p>
+    <p><strong>Raised:</strong> ₹<span id="detailRaised">0</span></p>
+    <div class="progress">
+      <div id="detailProgress" style="width: 0%;"></div>
+    </div>
+    
+    <div class="contribution-form">
+      <h4>Make a Contribution</h4>
+      <input type="number" id="contributionAmount" placeholder="Amount in ₹" min="1">
+      <button class="auth-button" onclick="contribute()">Contribute Now</button>
+    </div>
+    
+    <button onclick="showSection('campaigns')">Back to Campaigns</button>
+  </div>
+
+  <div id="create" class="section">
+    <h3>Create New Campaign</h3>
+    <form id="createForm">
+      <input type="text" id="patientName" placeholder="Patient Name" required>
+      <input type="text" id="medicalCondition" placeholder="Medical Condition" required>
+      <textarea id="campaignDesc" placeholder="Detailed description..." required></textarea>
+      <input type="number" id="fundingGoal" placeholder="Goal Amount (₹)" required>
+      <input type="date" id="endDate" required>
+      <label for="medicalProof">Medical Proof (PDF/Image):</label>
+      <input type="file" id="medicalProof" accept=".pdf,.jpg,.png" required>
+      <button type="submit" class="auth-button">Create Campaign</button>
+    </form>
+  </div>
+
+  <script>
+    // State Management
+    let currentUser = null;
+    let currentCampaignId = null;
+    let campaigns = [
+      {
+        id: 1,
+        patient: "Rani Patel",
+        condition: "Kidney Transplant",
+        description: "Rani needs urgent kidney transplant surgery to survive. The total cost includes surgery, medication, and post-op care.",
+        goal: 200000,
+        raised: 150000,
+        endDate: "2023-12-31"
+      },
+      {
+        id: 2,
+        patient: "Arjun Mehta",
+        condition: "Cancer Treatment",
+        description: "Funding for chemotherapy and radiation therapy at Tata Memorial Hospital.",
+        goal: 500000,
+        raised: 275000,
+        endDate: "2023-11-15"
+      }
+    ];
+
+    // DOM Elements
+    const authNav = document.getElementById('authNav');
+    const userNav = document.getElementById('userNav');
+    const createBtn = document.getElementById('createBtn');
+    const usernameDisplay = document.getElementById('usernameDisplay');
+    const campaignList = document.getElementById('campaignList');
+    const createForm = document.getElementById('createForm');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      renderCampaigns();
+      checkAuth();
+    });
+
+    // Section Navigation
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+      document.getElementById(sectionId).classList.add('active');
+    }
+
+    // Auth Functions
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      // Simple validation
+      if (email && password) {
+        currentUser = {
+          name: email.split('@')[0],
+          email: email
+        };
+        checkAuth();
+        showSection('campaigns');
+        alert('Login successful!');
+      } else {
+        alert('Please enter both email and password');
+      }
+    }
+
+    function register() {
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+      
+      if (name && email && password) {
+        currentUser = { name, email };
+        checkAuth();
+        showSection('campaigns');
+        alert('Registration successful!');
+      } else {
+        alert('Please fill all fields');
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      checkAuth();
+      showSection('login');
+    }
+
+    function checkAuth() {
+      if (currentUser) {
+        authNav.classList.add('hidden');
+        userNav.classList.remove('hidden');
+        createBtn.classList.remove('hidden');
+        usernameDisplay.textContent = currentUser.name;
+      } else {
+        authNav.classList.remove('hidden');
+        userNav.classList.add('hidden');
+        createBtn.classList.add('hidden');
+      }
+    }
+
+    // Campaign Functions
+    function renderCampaigns() {
+      campaignList.innerHTML = '';
+      campaigns.forEach(campaign => {
+        const percent = Math.min((campaign.raised / campaign.goal) * 100, 100);
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <strong>${campaign.patient}</strong>
+          <p>${campaign.condition}</p>
+          <p>₹${campaign.raised.toLocaleString()} raised / ₹${campaign.goal.toLocaleString()}</p>
+          <div class="progress"><div style="width: ${percent}%"></div></div>
+          <button onclick="viewCampaign(${campaign.id})">View Details</button>
+        `;
+        campaignList.appendChild(card);
+      });
+    }
+
+    function viewCampaign(id) {
+      currentCampaignId = id;
+      const campaign = campaigns.find(c => c.id === id);
+      if (!campaign) return;
+      
+      document.getElementById('detailTitle').textContent = `${campaign.patient}'s Treatment`;
+      document.getElementById('detailPatient').textContent = campaign.patient;
+      document.getElementById('detailCondition').textContent = campaign.condition;
+      document.getElementById('detailGoal').textContent = campaign.goal.toLocaleString();
+      document.getElementById('detailRaised').textContent = campaign.raised.toLocaleString();
+      
+      updateProgressBar(campaign);
+      showSection('detail');
+    }
+
+    function updateProgressBar(campaign) {
+      const percent = Math.min((campaign.raised / campaign.goal) * 100, 100);
+      document.getElementById('detailProgress').style.width = `${percent}%`;
+    }
+
+    function contribute() {
+      if (!currentUser) {
+        alert('Please login to make a contribution');
+        showSection('login');
+        return;
+      }
+      
+      const amountInput = document.getElementById('contributionAmount');
+      const amount = parseInt(amountInput.value);
+      
+      if (!amount || isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid amount greater than 0');
+        return;
+      }
+      
+      const campaignIndex = campaigns.findIndex(c => c.id === currentCampaignId);
+      if (campaignIndex === -1) return;
+      
+      // Update the campaign's raised amount
+      campaigns[campaignIndex].raised += amount;
+      
+      // Update the UI
+      document.getElementById('detailRaised').textContent = 
+        campaigns[campaignIndex].raised.toLocaleString();
+      updateProgressBar(campaigns[campaignIndex]);
+      
+      // Update the campaign list
+      renderCampaigns();
+      
+      // Clear the input
+      amountInput.value = '';
+      
+      alert(`Thank you for your contribution of ₹${amount.toLocaleString()}!`);
+    }
+
+    // Form Handling
+    createForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (!currentUser) {
+        alert('Please login to create a campaign');
+        showSection('login');
+        return;
+      }
+      
+      const newCampaign = {
+        id: campaigns.length + 1,
+        patient: document.getElementById('patientName').value,
+        condition: document.getElementById('medicalCondition').value,
+        description: document.getElementById('campaignDesc').value,
+        goal: parseInt(document.getElementById('fundingGoal').value),
+        raised: 0,
+        endDate: document.getElementById('endDate').value
+      };
+      
+      campaigns.push(newCampaign);
+      renderCampaigns();
+      createForm.reset();
+      showSection('campaigns');
+      alert('Campaign created successfully!');
+    });
+
+    // Initial render
+    renderCampaigns();
+  </script>
+</body>
+</html>
